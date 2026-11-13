@@ -1,0 +1,61 @@
+name: Build firmware
+
+on:
+  push:
+    branches: ["**"]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: ghcr.io/qmk/qmk_cli
+    env:
+      QMK_HOME: ${{ github.workspace }}/vial-qmk
+    steps:
+      - name: Checkout Paikorea_firmware
+        uses: actions/checkout@v4
+        with:
+          path: paikorea
+
+      - name: Checkout vial-qmk
+        run: |
+          git config --global --add safe.directory '*'
+          git clone --depth 1 https://github.com/vial-kb/vial-qmk vial-qmk
+          cd vial-qmk
+          git submodule update --init --depth 1 \
+            lib/chibios lib/chibios-contrib lib/pico-sdk lib/printf \
+            lib/lvgl lib/lufa lib/vusb lib/googletest
+
+      - name: Add Paikorea keyboard
+        run: cp -r paikorea/keyboards/paikorea vial-qmk/keyboards/
+
+      - name: Build
+        run: |
+          mkdir -p out
+          cd vial-qmk
+          for side in left right; do
+            make SKIP_GIT=yes paikorea:vial PAIKOREA_SIDE=$side
+            cp paikorea_vial.uf2 ../out/paikorea_vial_${side}.uf2
+          done
+          make SKIP_GIT=yes paikorea:default PAIKOREA_SIDE=left
+          cp paikorea_default.uf2 ../out/paikorea_default_left.uf2
+          make SKIP_GIT=yes paikorea:default PAIKOREA_SIDE=right
+          cp paikorea_default.uf2 ../out/paikorea_default_right.uf2
+          ls -l ../out
+
+      - name: Upload firmware
+        uses: actions/upload-artifact@v4
+        with:
+          name: paikorea-firmware
+          path: out/*.uf2
+
+      - name: Publish release (tags only)
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: out/*.uf2
