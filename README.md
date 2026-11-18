@@ -38,22 +38,32 @@ TRRS 케이블은 USB를 뽑은 상태에서만 꽂고 빼세요.
 
 다이오드 방향은 COL2ROW입니다. 왼쪽(뒷면 조립)은 PCB에서 U2의 GP8/GP9가 연결되어 있지 않으니, 트랙패드 SDA→GP8, SCL→GP9, VDD→3V3, GND→GND로 직접 배선하세요. RDY/RST 핀은 쓰지 않습니다. 트랙패드가 없는 쪽은 펌웨어가 알아서 무시합니다.
 
-## 기본 키맵
+## 기본 키맵 (Vial)
+
+`keymaps/vial/keymap.c`에 들어 있습니다.
 
 ```
  ,----------------------------------.              ,----------------------------------.
  |   Q  |   W  |   E  |   R  |   T  |              |   Y  |   U  |   I  |   O  |   P  |
- |   A  |   S  |   D  |   F  |   G  |   [패드]    |   H  |   J  |   K  |   L  |   ;  |
- |Sft/Z |   X  |   C  |   V  |   B  |   [패드]    |   N  |   M  |   ,  |   .  |Sft// |
- | Ctrl |             | GUI  |LOWER |Space |  |Enter |RAISE | Bksp |             |한/영 |
+ |   A  |S/Ctl |D/Sft |F/Alt |   G  |   [패드]    |   H  |   J  |K/Sft |L/Ctl |   ;  |
+ |Sft/Z |   X  |   C  |   V  |B/RAIS|   [패드]    |   N  |   M  |   ,  |   .  |   /  |
+ | Ctrl |             |Enter |Space |LOWER |  |RAISE |Space | Bksp |             | RAlt |
  `------'             `--------------------'  `--------------------'             `------'
 ```
 
-- **LOWER**: 숫자, 기호, Esc/Tab/Alt, (오른쪽 끝) 한자
-- **RAISE**: F1–F12, 방향키(HJKL 위치), Home/End/PgUp/PgDn
-- **LOWER + RAISE**: 미디어, 마우스 버튼, `DrgScrl`, `PadSwap`, 양쪽 맨 윗줄 끝에 `QK_BOOT`
+- **홈row 모드(탭댄스)**: S/D/F, K/L은 탭하면 글자, 누르고 있으면 Ctrl/Shift/Alt (F의 Alt만 500 ms, 나머지 130 ms). B는 누르고 있으면 RAISE, Enter 키도 탭댄스(TD0)입니다.
+- **콤보**: N + M = B
+- **LOWER**: 숫자 1–0, 방향키(왼손 ESDF 자리), 볼륨/재생, 오른손 숫자패드(1–6, 엄지 0), Tab, Del, 오른쪽 끝 한자
+- **RAISE**: F1–F12(왼손), 기호(``' - = [ ] \ ` _ + { } |``), Esc, Bksp, Enter, 매크로 `M0` = Ctrl+Shift+Esc, `M1` = Win+Shift+S
+- **LOWER + RAISE**: 비어 있음 (Vial에서 채워 쓰세요)
+
+탭댄스·콤보·매크로는 Vial의 EEPROM 항목이라, EEPROM이 초기화될 때(새 펌웨어를 플래싱했을 때, `QK_CLEAR_EEPROM`/Bootmagic) 펌웨어가 위 기본값을 다시 써 넣습니다. Vial에서 바꾼 내용은 다음 초기화 전까지 유지됩니다.
+
+기본 키맵에는 `QK_BOOT`가 없습니다. 부트로더는 **RESET을 빠르게 두 번** 누르거나 **BOOT를 누른 채 USB를 꽂아** 들어가세요. `DrgScrl`/`PadSwap`도 기본 키맵에는 없으니 필요하면 Vial의 User 탭에서 넣으세요.
 
 Vial에서 모두 바꿀 수 있습니다. 처음 연결하면 잠금 해제를 요구할 수 있는데, **왼쪽 Q + 오른쪽 P를 함께 누르고 있으면** 풀립니다.
+
+`keymaps/default/`(Vial 없는 테스트용 QMK)는 예전 키맵 그대로입니다.
 
 ## 트랙패드 동작
 
